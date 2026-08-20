@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { connectDatabase, logRequest, getAnalytics, getDailyAnalytics, isDatabaseConnected } from "./lib/analytics.js";
+import { connectDatabase, logRequest, getAnalytics, getDailyAnalytics, isDatabaseConnected, getDatabaseStatus } from "./lib/analytics.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -53,6 +53,10 @@ app.use((req, res, next) => {
   }
 
   const startedAt = Date.now();
+
+  // Start MongoDB connection early without making the API request depend on it.
+  // This is important on Vercel because the function may be a cold start.
+  void connectDatabase();
 
   res.on("finish", () => {
     const statusCode = res.statusCode;
@@ -269,7 +273,8 @@ registerRoute({
 
 app.get("/api/system/analytics", async (req, res) => {
   try {
-    res.json({ success: true, database: isDatabaseConnected(), analytics: await getAnalytics() });
+    const analytics = await getAnalytics();
+    res.json({ success: true, database: getDatabaseStatus(), analytics });
   } catch (error) {
     res.status(500).json({ success: false, error: true, message: error.message });
   }
@@ -305,11 +310,18 @@ app.use((error, req, res, next) => {
   });
 });
 
-connectDatabase().catch(error => {
-  console.error("Database startup error:", error.message);
-});
+// On Vercel, the platform manages the HTTP server. Export the Express app
+// instead of calling app.listen(). For local development, keep the normal server.
+if (!process.env.VERCEL) {
+  connectDatabase().catch(error => {
+    console.error("Database startup error:", error.message);
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-  console.log(`Endpoint registry: http://localhost:${PORT}/api/system/endpoints`);
-});
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Endpoint registry: http://localhost:${PORT}/api/system/endpoints`);
+  });
+}
+
+export default app;
+export { app };
