@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Zyphra API — Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="logo"><span>Z</span><strong>Zyphra API</strong></div>
+      <div class="side-label">Dashboard</div>
+      <a class="active" href="/">Overview</a>
+      <div class="side-bottom">
+        <div id="connection" class="connection"><i></i> Connecting</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header>
+        <div>
+          <p class="eyebrow">API ANALYTICS</p>
+          <h1>Dashboard</h1>
+          <p class="subtitle">Monitor request activity and API health.</p>
+        </div>
+        <button id="refresh" class="refresh">↻ Refresh</button>
+      </header>
+
+      <section class="cards">
+        <article class="card">
+          <div class="card-label">Requests today</div>
+          <div id="daily" class="metric">—</div>
+          <div class="card-note">Current day</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Total requests</div>
+          <div id="total" class="metric">—</div>
+          <div class="card-note">All recorded requests</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Successful</div>
+          <div id="success" class="metric success">—</div>
+          <div id="successRate" class="card-note">—</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Errors</div>
+          <div id="errors" class="metric error">—</div>
+          <div id="errorRate" class="card-note">—</div>
+        </article>
+      </section>
+
+      <section class="chart-card">
+        <div class="chart-head">
+          <div>
+            <h2>Requests overview</h2>
+            <p>Daily requests, successful responses and errors.</p>
+          </div>
+          <select id="days">
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+        <div class="chart-wrap"><canvas id="requestChart"></canvas></div>
+      </section>
+
+      <div id="message" class="message"></div>
+      <footer>Zyphra API · MongoDB Analytics · Chart.js</footer>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
